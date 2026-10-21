@@ -41,7 +41,7 @@ screening summaries, and stores results in AWS.
 | `candidate_service.py` | Candidate retrieval and GitHub profile enrichment |
 | `integrated_screening.py` | Screening integration workflow |
 | `gemini_resume_analyzer.py` | Gemini-based analysis utilities |
-
+- `lambda_function.py` — AWS Lambda API handler for candidate registration, presigned S3 upload URLs, and DynamoDB record creation.
 ## Setup
 
 Create and activate a virtual environment:
