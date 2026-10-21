@@ -1,0 +1,40 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+.aws/
+*.pem
+*.key
+credentials
+config
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Downloads and generated archives
+awscliv2.zip
+resume-screening-api-backup.zip
+lambda-package/
+database_working_backup.py
+integrated_screening_working_backup.py
+upload-lambda-backup/
+"dynamodb get-item \\"
+
+# Local testing
+test_gemini.py
+
+# AWS CLI installation and local AWS files
+aws/
+awscliv2.zip
+lambda-package/
+upload-lambda-backup/
+resume-screening-api-backup.zip
+dynamodb-upload-policy.json
+
+# Local backups and test scripts
+database_working_backup.py
+integrated_screening_working_backup.py
+test_gemini.py
