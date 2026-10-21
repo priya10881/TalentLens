@@ -1,59 +1,8 @@
 # AI-Powered Resume Screening and Parsing
 
-An AI-assisted resume screening project that combines resume parsing,
-skill matching, candidate data storage, and GitHub profile retrieval.
-
-## Features
-
-- Parse resumes from PDF files.
-- Extract candidate details and technical skills.
-- Compare extracted skills with a job description.
-- Generate an AI-assisted screening summary using Google Gemini.
-- Store candidate records and screening results in Amazon DynamoDB.
-- Store uploaded resume PDFs in Amazon S3.
-- Retrieve GitHub profile and repository information using the GitHub API.
-
-## Technology Stack
-
-- Python
-- Amazon S3
-- Amazon DynamoDB
-- AWS SDK for Python (boto3)
-- Google Gemini API
-- GitHub API
-- PDF parsing
-
-## Project Files
-
-- `main.py` — Resume screening entry point.
-- `pdf_reader.py` — PDF reading utilities.
-- `resume_analyzer.py` — AI-assisted resume analysis.
-- `skills_matcher.py` — Skill matching.
-- `textract_parser.py` — Resume parsing utilities.
-- `database.py` — DynamoDB operations.
-- `process_uploaded_resume.py` — Downloads an uploaded resume from S3, screens it, and saves results to DynamoDB.
-- `github_api.py` — GitHub API integration.
-- `candidate_service.py` — Candidate retrieval and enrichment.
-- `integrated_screening.py` — Screening integration workflow.
-- `gemini_resume_analyzer.py` — Gemini-based analysis utilities.
-
-## Setup
-
-Use Python 3.11 or newer, subject to compatibility with the installed
-versions of the project dependencies.
-
-Create and activate a virtual environment:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-cd ~/resume-screening-member-h
-
-cat > README.md <<'EOF'
-# AI-Powered Resume Screening and Parsing
-
-An AI-assisted resume screening project combining PDF resume parsing,
-skill matching, AI analysis, and candidate data storage.
+An AI-assisted resume screening system that parses PDF resumes,
+matches candidate skills against job descriptions, generates AI-assisted
+screening summaries, and stores results in AWS.
 
 ## Features
 
@@ -61,47 +10,79 @@ skill matching, AI analysis, and candidate data storage.
 - Match candidate skills against a job description.
 - Generate AI-assisted screening summaries using Google Gemini.
 - Store candidate records and screening results in Amazon DynamoDB.
-- Store uploaded resumes in Amazon S3.
-- Retrieve GitHub profile and repository information.
+- Store uploaded resume PDFs in Amazon S3.
+- Generate presigned URLs for resume uploads through an API.
+- Retrieve GitHub profile and repository information using the GitHub API.
 
 ## Technology Stack
 
 - Python
+- Amazon API Gateway
+- AWS Lambda
 - Amazon S3
 - Amazon DynamoDB
 - Boto3
 - Google Gemini API
-- GitHub API
+- GitHub REST API
+- PDF parsing
+
+## Project Files
+
+| File | Purpose |
+|---|---|
+| `main.py` | Resume screening entry point |
+| `pdf_reader.py` | PDF reading utilities |
+| `resume_analyzer.py` | Resume analysis |
+| `skills_matcher.py` | Skill matching |
+| `textract_parser.py` | Resume parsing utilities |
+| `database.py` | DynamoDB operations |
+| `process_uploaded_resume.py` | Downloads, processes, and screens an uploaded resume |
+| `github_api.py` | GitHub API integration |
+| `candidate_service.py` | Candidate retrieval and GitHub profile enrichment |
+| `integrated_screening.py` | Screening integration workflow |
+| `gemini_resume_analyzer.py` | Gemini-based analysis utilities |
 
 ## Setup
 
-Create a virtual environment:
+Create and activate a virtual environment:
 
     python3 -m venv .venv
     source .venv/bin/activate
 
-Install the dependencies:
+Install dependencies:
 
     pip install -r requirements.txt
 
 Configure AWS credentials using a secure AWS credentials provider.
-Configure the Gemini API key using an environment variable.
-Never commit API keys or AWS credentials.
+Configure your Gemini API key using the environment variable expected
+by the application.
 
-## Process an Uploaded Resume
+Never commit API keys, AWS credentials, or `.env` files.
 
-After the candidate record and uploaded PDF are available, run:
+## Resume Screening Workflow
+
+1. Submit a candidate registration request to the API.
+2. Receive a candidate ID and a presigned S3 upload URL.
+3. Upload the resume PDF to Amazon S3.
+4. Run the Python screening script with the candidate ID.
+5. Extract resume information and analyze skills.
+6. Generate an AI-assisted suitability summary.
+7. Save screening results and the final status in DynamoDB.
+
+Run screening for an uploaded candidate:
 
     python process_uploaded_resume.py <candidate-id>
 
-The script downloads the resume from S3, processes it, and updates
-the corresponding candidate record in DynamoDB.
+Replace `<candidate-id>` with the actual candidate ID returned by the API.
 
-Resume processing currently runs through this Python script manually.
-This repository does not automatically configure an S3 event trigger.
+**Current limitation:** Resume processing is initiated manually using the
+Python script. Automatic screening triggered by an S3 upload has not
+been implemented or verified.
 
 ## Security
 
 - Never commit `.env` files, API keys, or AWS credentials.
-- Use appropriate IAM permissions.
-- Do not publish real candidate resumes or personal information.
+- Apply least-privilege IAM permissions.
+- Keep S3 objects private and protect presigned URLs.
+- Use fictional or authorized sample resumes during demonstrations.
+- Avoid publishing candidate personal information in logs or screenshots.
