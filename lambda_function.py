@@ -12,13 +12,15 @@ from botocore.exceptions import ClientError
 # --------------------------------------------------
 
 AWS_REGION = os.environ.get("AWS_REGION", "eu-west-1")
-
 BUCKET_NAME = os.environ.get("RESUME_BUCKET")
-
 TABLE_NAME = os.environ.get(
     "CANDIDATE_TABLE",
     "ResumeScreeningResults"
 )
+
+# Allow requests from the local TalentLens frontend.
+# If your frontend uses a different port, update this value.
+FRONTEND_ORIGIN = "http://localhost:8000"
 
 s3 = boto3.client(
     "s3",
@@ -41,9 +43,15 @@ def response(status_code, body):
     return {
         "statusCode": status_code,
         "headers": {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": FRONTEND_ORIGIN,
+            "Access-Control-Allow-Headers": (
+                "Content-Type,X-Amz-Date,Authorization,"
+                "X-Api-Key,X-Amz-Security-Token"
+            ),
+            "Access-Control-Allow-Methods": "GET,OPTIONS,POST"
         },
-        "body": json.dumps(body)
+        "body": json.dumps(body,default=str)
     }
 
 
@@ -81,9 +89,9 @@ def lambda_handler(event, context):
     method = event.get("httpMethod", "")
     path = event.get("path", "")
 
-    # ----------------------------------------------
+    # --------------------------------------------------
     # 1. HEALTH CHECK
-    # ----------------------------------------------
+    # --------------------------------------------------
 
     if (
         method == "GET"
@@ -98,9 +106,9 @@ def lambda_handler(event, context):
             }
         )
 
-    # ----------------------------------------------
+    # --------------------------------------------------
     # 2. GENERATE PDF UPLOAD URL
-    # ----------------------------------------------
+    # --------------------------------------------------
 
     if (
         method == "POST"
@@ -115,8 +123,7 @@ def lambda_handler(event, context):
                 }
             )
 
-        # Parse and validate the incoming request.
-
+        # Parse and validate request body.
         try:
             body = parse_request_body(event)
 
@@ -157,14 +164,10 @@ def lambda_handler(event, context):
             )
 
         # Create a unique candidate ID and S3 object key.
-
         candidate_id = str(uuid.uuid4())
-
         object_key = f"resumes/{candidate_id}.pdf"
 
-        # Generate the upload URL before creating the database record.
-        # This avoids creating a record if URL generation fails.
-
+        # Generate the presigned S3 upload URL.
         try:
             upload_url = s3.generate_presigned_url(
                 "put_object",
@@ -186,8 +189,7 @@ def lambda_handler(event, context):
                 }
             )
 
-        # Save the initial candidate record.
-
+        # Register the candidate in DynamoDB.
         try:
             table.put_item(
                 Item={
@@ -210,8 +212,7 @@ def lambda_handler(event, context):
                 }
             )
 
-        # Return the upload URL and candidate information.
-
+        # Return candidate details and upload URL.
         return response(
             200,
             {
@@ -225,10 +226,57 @@ def lambda_handler(event, context):
                 "status": "PENDING_UPLOAD"
             }
         )
+    # --------------------------------------------------
+    # 3. GET CANDIDATES FROM DYNAMODB
+    # --------------------------------------------------
 
-    # ----------------------------------------------
+    if (
+        method == "GET"
+        and path.rstrip("/").endswith("/candidates")
+    ):
+        try:
+            result = table.scan()
+            items = result.get("Items", [])
+
+            while "LastEvaluatedKey" in result:
+                result = table.scan(
+                    ExclusiveStartKey=result["LastEvaluatedKey"]
+                )
+                items.extend(result.get("Items", []))
+
+            # Return only fields needed by the dashboard.
+            candidates = [
+                {
+                    "candidateId": item.get("candidateId", ""),
+                    "jobDescription": item.get("jobDescription", ""),
+                    "screeningStatus": item.get(
+                        "screeningStatus", "UNKNOWN"
+                    ),
+                    "aiAnalysis": item.get("aiAnalysis"),
+                }
+                for item in items
+            ]
+
+            return response(
+                200,
+                {
+                    "count": len(candidates),
+                    "candidates": candidates
+                }
+            )
+
+        except ClientError:
+            print("AWS error while retrieving candidates")
+
+            return response(
+                500,
+                {
+                    "error": "Could not retrieve candidates"
+                }
+            )
+    # --------------------------------------------------
     # 3. UNKNOWN ROUTE
-    # ----------------------------------------------
+    # --------------------------------------------------
 
     return response(
         404,

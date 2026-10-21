@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TalentLens — AI Resume Screening</title>
+<style>
+:root {
+  --site-primary: #635bdb;
+  --site-on-primary: #ffffff;
+  --site-secondary: #e9e7ff;
+  --site-on-secondary: #29245d;
+  --site-background: #f6f7fb;
+  --site-on-background: #202238;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: light-dark(#f6f7fb, #151622); color: light-dark(#202238, #f0f0fa); }
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+.app { min-height: 100vh; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; }
+.layout { display: grid; grid-template-columns: 248px minmax(0,1fr); min-height: 100vh; }
+.sidebar { background: light-dark(#fff, #1c1d2b); border-right: 1px solid light-dark(#e9eaf2, #343547); padding: 27px 17px; display: flex; flex-direction: column; gap: 34px; }
+.brand { display:flex; align-items:center; gap:11px; padding: 0 12px; font-weight: 800; letter-spacing:-.7px; font-size: 21px; }
+.logo { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; color:#fff; background:linear-gradient(140deg,#8178ff,#5c51ce); box-shadow:0 8px 18px #635bdb40; }
+.logo svg { width:22px; height:22px; }
+.workspace { margin: 0 9px; border:1px solid light-dark(#e8e9f3,#393a4d); border-radius:13px; padding:12px; display:flex; align-items:center; gap:10px; }
+.workspace-icon { width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:var(--site-secondary);color:var(--site-on-secondary);font-weight:800; }
+.workspace small { display:block; color:light-dark(#777a92,#a9abc1); font-size:11px; margin-bottom:3px; }
+.workspace strong { font-size:12px; }
+.nav-label { color:light-dark(#9699ad,#8587a0); font-size:10px; font-weight:800; letter-spacing:1.4px; padding:0 14px; margin-bottom:9px; }
+.nav { display:grid; gap:5px; }
+.nav button { display:flex; align-items:center; gap:13px; padding:12px 14px; border:0; border-radius:11px; color:light-dark(#70738c,#b3b5ca); background:transparent; text-align:left; font-size:13px; font-weight:600; transition:.2s; }
+.nav button:hover { background:light-dark(#f4f3ff,#292a3d); color:var(--site-primary); }
+.nav button.active { background:var(--site-secondary); color:var(--site-on-secondary); }
+.nav svg { width:18px;height:18px; flex-shrink:0; }
+.nav .count { margin-left:auto; background:light-dark(#f0efff,#37334f); padding:3px 7px; border-radius:7px; font-size:10px; }
+.sidebar-bottom { margin-top:auto; }
+.help-card { background:linear-gradient(145deg,#f0efff,#fafaff); border:1px solid #e5e2ff; border-radius:15px; padding:16px; color:#34305f; }
+.help-card .help-icon { width:31px;height:31px;border-radius:10px;background:#dedaff;display:grid;place-items:center;margin-bottom:12px; }
+.help-card strong { font-size:12px; }
+.help-card p { font-size:11px; line-height:1.6; color:#77739c; margin:7px 0 12px; }
+.help-card button { border:0;background:#fff;color:#5148c5;padding:8px 10px;border-radius:8px;font-size:11px;font-weight:700;box-shadow:0 2px 8px #3930770d; }
+.profile { display:flex; align-items:center; gap:10px; border-top:1px solid light-dark(#ebecf3,#343547); padding:20px 8px 0; margin-top:20px; }
+.avatar { display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#f4d9c9;color:#7a4b37;font-size:12px;font-weight:800; }
+.profile strong { display:block;font-size:12px; }
+.profile small { color:light-dark(#888ba0,#a6a8bf);font-size:10px; }
+.profile .dots { margin-left:auto;color:#9698ac; }
+.main { min-width:0; }
+.topbar { height:78px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 36px; background:light-dark(#fff,#1c1d2b); border-bottom:1px solid light-dark(#e9eaf2,#343547); }
+.breadcrumb { color:light-dark(#9295aa,#a6a8bf);font-size:12px; }
+.breadcrumb strong { color:light-dark(#303149,#f0f0fa);font-weight:700; }
+.top-actions { display:flex;align-items:center;gap:12px; }
+.search { display:flex;align-items:center;gap:9px;border:1px solid light-dark(#e8e9f2,#393a4d);background:light-dark(#fafbfe,#242536);border-radius:10px;padding:9px 12px;width:220px;color:light-dark(#a0a2b5,#9d9fb7); }
+.search input { min-width:0;width:100%;border:0;outline:0;background:transparent;color:inherit;font-size:12px; }
+.icon-btn { width:37px;height:37px;border:1px solid light-dark(#e8e9f2,#393a4d);border-radius:10px;background:transparent;color:light-dark(#777a91,#c5c6d7);display:grid;place-items:center;position:relative; }
+.icon-btn .dot { position:absolute;right:8px;top:7px;width:6px;height:6px;border-radius:50%;background:#f07b8b;border:1px solid #fff; }
+.content { max-width:1500px;margin:0 auto;padding:31px 36px 42px; }
+.welcome { display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:25px; }
+.eyebrow { display:flex;align-items:center;gap:7px;color:#7168d6;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:9px; }
+.eyebrow span { width:7px;height:7px;border-radius:50%;background:#8279ff; }
+h1 { font-family:var(--site-font-heading);font-size:calc(29px * var(--site-heading-scale));letter-spacing:-1.2px;line-height:1.2;margin:0;color:light-dark(#202238,#f2f2fb); }
+.subtitle { margin:9px 0 0;color:light-dark(#888ba1,#a8aac0);font-size:13px; }
+.primary-btn { display:inline-flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:10px;background:var(--site-primary);color:var(--site-on-primary);padding:12px 16px;font-size:12px;font-weight:750;box-shadow:0 7px 16px #635bdb32;transition:.18s; }
+.primary-btn:hover { transform:translateY(-1px);filter:brightness(1.06); }
+.primary-btn svg { width:16px;height:16px; }
+.stats { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px; }
+.stat { background:light-dark(#fff,#1c1d2b);border:1px solid light-dark(#e9eaf2,#343547);border-radius:15px;padding:19px 20px;min-width:0;box-shadow:0 3px 12px #20204a04; }
+.stat-top { display:flex;align-items:center;justify-content:space-between;gap:10px; }
+.stat-label { font-size:11px;color:light-dark(#85889f,#a5a7be);font-weight:650; }
+.stat-icon { width:35px;height:35px;border-radius:11px;display:grid;place-items:center; }
+.stat-icon svg { width:18px;height:18px; }
+.stat-icon.purple { background:#eeecff;color:#655bd7; }
+.stat-icon.mint { background:#e0f8ef;color:#169b75; }
+.stat-icon.amber { background:#fff2d9;color:#c88a1c; }
+.stat-icon.blue { background:#e2f0ff;color:#3687da; }
+.stat-number { font-size:27px;font-weight:800;letter-spacing:-1px;margin:14px 0 7px; }
+.stat-foot { font-size:10px;color:light-dark(#9295a9,#a5a7bd); }
+.stat-foot .positive { color:#159b75;font-weight:800; }
+.stat-foot .neutral { color:#7168d6;font-weight:800; }
+.panel { background:light-dark(#fff,#1c1d2b);border:1px solid light-dark(#e9eaf2,#343547);border-radius:16px;box-shadow:0 3px 12px #20204a04;min-width:0; }
+.panel-head { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px;border-bottom:1px solid light-dark(#eff0f6,#333447); }
+.panel-title { font-size:14px;font-weight:800;letter-spacing:-.2px; }
+.panel-caption { color:light-dark(#9295aa,#a6a8bd);font-size:11px;margin-top:5px; }
+.text-btn { border:0;background:transparent;color:#6b62d8;font-size:11px;font-weight:800;padding:8px; }
+.overview-grid { display:grid;grid-template-columns:minmax(0,1.6fr) minmax(270px,1fr);gap:18px;margin-bottom:22px; }
+.upload-panel { padding:23px; }
+.upload-intro { display:flex;align-items:center;gap:14px;margin-bottom:19px; }
+.upload-symbol { display:grid;place-items:center;width:45px;height:45px;border-radius:13px;background:var(--site-secondary);color:var(--site-on-secondary);flex-shrink:0; }
+.upload-symbol svg { width:22px;height:22px; }
+.upload-intro strong { display:block;font-size:14px; }
+.upload-intro p { color:light-dark(#9295a9,#a5a7bc);font-size:11px;margin:5px 0 0; }
+.dropzone { display:flex;flex-direction:column;align-items:center;text-align:center;padding:25px 15px 23px;border:1.5px dashed light-dark(#d8d5f6,#4c486b);background:light-dark(#faf9ff,#242438);border-radius:13px;transition:.2s; }
+.dropzone.dragover { background:light-dark(#f0eeff,#302d4a);border-color:#7469df; }
+.cloud-icon { width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:light-dark(#eceaff,#35314e);color:#6c62d7;margin-bottom:11px; }
+.cloud-icon svg { width:23px;height:23px; }
+.dropzone strong { font-size:12px; }
+.dropzone p { color:light-dark(#9295a9,#a5a7bd);font-size:10px;margin:7px 0 13px; }
+.dropzone p span { color:#6d63d7;font-weight:800; }
+.file-input { display:none; }
+.secondary-btn { border:1px solid light-dark(#e3e2f5,#47465e);background:light-dark(#fff,#2a2b3e);color:light-dark(#5c56a6,#d0ccff);border-radius:9px;padding:9px 13px;font-size:11px;font-weight:750; }
+.file-picked { display:none;align-items:center;gap:9px;margin-top:12px;padding:10px 12px;border-radius:9px;background:light-dark(#effaf5,#1c352e);color:light-dark(#247c61,#87d6b9);font-size:11px; }
+.file-picked.visible { display:flex; }
+.file-picked span { overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.job-field { margin-top:17px; }
+.job-field label { display:block;font-size:11px;font-weight:750;margin-bottom:7px; }
+.job-field textarea { width:100%;min-height:74px;resize:vertical;border:1px solid light-dark(#e7e8f1,#414256);border-radius:10px;background:light-dark(#fbfcfe,#242536);padding:11px 12px;outline:none;color:inherit;font-size:11px;line-height:1.5; }
+.job-field textarea:focus { border-color:#8981e8;box-shadow:0 0 0 3px #8177ff20; }
+.upload-footer { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px; }
+.upload-footer small { font-size:10px;color:light-dark(#989aaf,#a5a7bc); }
+.upload-footer .primary-btn { padding:10px 14px;font-size:11px; }
+.pipeline { padding:21px 22px; }
+.pipeline .panel-head { padding:0 0 17px;margin-bottom:3px; }
+.pipeline-step { display:flex;align-items:flex-start;gap:12px;padding:14px 0;position:relative; }
+.pipeline-step:not(:last-child)::after { content:"";position:absolute;left:15px;top:43px;bottom:-4px;width:1px;background:light-dark(#e4e4f3,#414157); }
+.step-icon { width:31px;height:31px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;background:light-dark(#f0efff,#33304d);color:#7066dc;z-index:1; }
+.step-icon svg { width:16px;height:16px; }
+.step-text { flex:1;min-width:0; }
+.step-text strong { display:block;font-size:11px;margin:2px 0 5px; }
+.step-text p { margin:0;color:light-dark(#9698ac,#a5a7bd);font-size:10px;line-height:1.45; }
+.step-status { font-size:9px;font-weight:800;color:#189a73;background:#e2f8ef;border-radius:6px;padding:5px 7px;white-space:nowrap; }
+.step-status.pending { color:#b78122;background:#fff2d7; }
+.pipeline-note { background:light-dark(#f8f7ff,#26253c);border-radius:10px;padding:11px 12px;margin-top:7px;color:light-dark(#77739e,#b3afd9);font-size:10px;line-height:1.5; }
+.table-panel { overflow:hidden; }
+.table-tools { display:flex;align-items:center;gap:9px; }
+.filter-select { border:1px solid light-dark(#e6e7f0,#414256);background:light-dark(#fff,#252638);border-radius:8px;padding:8px 10px;font-size:10px;color:inherit;outline:none; }
+.table-wrap { overflow-x:auto; }
+table { border-collapse:collapse;width:100%;min-width:720px; }
+th { text-align:left;padding:13px 19px;background:light-dark(#fafbfe,#222333);font-size:9px;letter-spacing:.8px;text-transform:uppercase;color:light-dark(#999bb0,#a3a5bb);font-weight:800; }
+td { padding:15px 19px;border-top:1px solid light-dark(#f0f1f6,#303143);font-size:11px;vertical-align:middle; }
+tbody tr:hover { background:light-dark(#fcfbff,#242536); }
+.candidate { display:flex;align-items:center;gap:10px;min-width:160px; }
+.candidate-avatar { width:35px;height:35px;display:grid;place-items:center;border-radius:11px;font-weight:800;font-size:10px;flex-shrink:0; }
+.candidate-name { font-weight:800;font-size:11px; }
+.candidate-email { margin-top:4px;color:light-dark(#9698ad,#a4a6bd);font-size:10px; }
+.role { color:light-dark(#6e7189,#c0c1d3);font-size:10px; }
+.skill-list { display:flex;flex-wrap:wrap;gap:4px;max-width:185px; }
+.skill { padding:4px 6px;border-radius:5px;background:light-dark(#f1f0ff,#34314e);color:light-dark(#6860c4,#c6c1ff);font-size:9px;font-weight:750; }
+.match { display:flex;align-items:center;gap:8px;min-width:105px; }
+.match strong { font-size:11px; }
+.meter { height:5px;width:47px;background:light-dark(#eeeef5,#414256);border-radius:99px;overflow:hidden; }
+.meter span { height:100%;display:block;background:#6f65dd;border-radius:99px; }
+.status { display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:6px 8px;font-size:9px;font-weight:800;white-space:nowrap; }
+.status::before { content:"";width:5px;height:5px;border-radius:50%;background:currentColor; }
+.status.completed { background:#e2f8ef;color:#188a68; }
+.status.review { background:#fff3dc;color:#b77b1c; }
+.status.processing { background:#e8efff;color:#4f73c7; }
+.row-action { border:0;background:transparent;color:light-dark(#9799ad,#a7a9be);font-size:19px;padding:4px 7px;border-radius:6px; }
+.row-action:hover { background:light-dark(#f0efff,#34314e);color:#6f65dd; }
+.table-bottom { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 20px;border-top:1px solid light-dark(#eff0f6,#333447);font-size:10px;color:light-dark(#9698ac,#a5a7bd); }
+.pagination { display:flex;gap:5px; }
+.pagination button { min-width:27px;height:27px;border:1px solid light-dark(#e8e9f2,#414256);border-radius:7px;background:transparent;color:inherit;font-size:10px; }
+.pagination button.active { background:var(--site-primary);border-color:var(--site-primary);color:#fff; }
+.toast { position:fixed;right:22px;bottom:22px;background:light-dark(#25263b,#f0efff);color:light-dark(#fff,#29245d);border-radius:12px;padding:13px 16px;box-shadow:0 12px 40px #17172b30;font-size:12px;display:none;z-index:5;max-width:min(380px,calc(100vw - 36px)); }
+.toast.show { display:block;animation:rise .25s ease-out; }
+@keyframes rise { from { transform:translateY(8px);opacity:0; } to { transform:translateY(0);opacity:1; } }
+.modal-backdrop { position:fixed;inset:0;background:#14142570;display:none;align-items:center;justify-content:center;padding:20px;z-index:10; }
+.modal-backdrop.open { display:flex; }
+.modal { width:min(490px,100%);background:light-dark(#fff,#202132);color:light-dark(#202238,#f1f1fb);border:1px solid light-dark(#e7e8f2,#414256);border-radius:17px;box-shadow:0 25px 90px #10102035;overflow:hidden; }
+.modal-head { display:flex;justify-content:space-between;align-items:center;padding:19px 21px;border-bottom:1px solid light-dark(#eff0f6,#38394c); }
+.modal-head strong { font-size:14px; }
+.modal-close { border:0;background:transparent;color:inherit;font-size:22px; }
+.modal-body { padding:21px; }
+.modal-body p { font-size:12px;color:light-dark(#777a91,#b1b2c7);line-height:1.7; }
+.detail-score { display:flex;align-items:center;gap:16px;padding:15px;background:light-dark(#f7f6ff,#29283f);border-radius:12px;margin:16px 0; }
+.score-circle { width:63px;height:63px;border-radius:50%;display:grid;place-items:center;border:5px solid #8177e7;color:light-dark(#4e47ae,#d3ceff);font-size:16px;font-weight:850;flex-shrink:0; }
+.detail-score strong { display:block;font-size:13px; }
+.detail-score span { display:block;color:light-dark(#8e90a5,#aaaac0);font-size:10px;margin-top:5px; }
+.detail-list { display:grid;grid-template-columns:1fr 1fr;gap:11px; }
+.detail-item { border:1px solid light-dark(#ececf4,#414256);border-radius:10px;padding:12px; }
+.detail-item small { color:light-dark(#999bb0,#a6a8be);font-size:9px;text-transform:uppercase;letter-spacing:.6px; }
+.detail-item strong { display:block;font-size:11px;margin-top:6px; }
+.modal-foot { padding:15px 21px;border-top:1px solid light-dark(#eff0f6,#38394c);display:flex;justify-content:flex-end;gap:8px; }
+@media (max-width:1100px) { .layout{grid-template-columns:215px minmax(0,1fr)} .sidebar{padding:23px 12px}.topbar{padding:0 24px}.content{padding:27px 24px 36px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:760px) { .layout{grid-template-columns:1fr}.sidebar{display:none}.topbar{height:65px;padding:0 17px}.search{width:min(200px,43vw)}.content{padding:23px 16px 30px}.welcome{align-items:flex-start;flex-direction:column}.welcome .primary-btn{width:100%}.stats{gap:10px}.stat{padding:15px}.stat-number{font-size:23px}.panel-head{padding:17px}.upload-panel{padding:17px}.pipeline{padding:17px}.table-tools .filter-select{max-width:110px}.table-bottom{padding:13px 15px} }
+@media (max-width:430px) { .stats{grid-template-columns:1fr 1fr}.stat-label{font-size:10px}.stat-icon{width:30px;height:30px}.top-actions{gap:7px}.search{width:145px}.breadcrumb{font-size:10px}h1{font-size:25px}.detail-list{grid-template-columns:1fr}.upload-footer{align-items:flex-start;flex-direction:column}.upload-footer .primary-btn{width:100%} }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand"><div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17.5 4.5 20 4 15.5a8 8 0 1 1 4.5 4.1"/><path d="m8 12 2.5 2.5L16 9"/></svg></div>TalentLens</div>
+  <div class="workspace"><div class="workspace-icon">TL</div><div><small>WORKSPACE</small><strong>Recruiting team</strong></div><span style="margin-left:auto;color:#9899ad;font-size:11px">⌄</span></div>
+  <div><div class="nav-label">WORKSPACE</div><nav class="nav">
+    <button class="active" data-page="Overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="8" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="11" width="7" height="10" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>Overview</button>
+    <button data-page="Candidates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7" r="4"/><path d="M20.5 20v-1.5a4 4 0 0 0-3-3.87M16.5 3.2a4 4 0 0 1 0 7.6"/></svg>Candidates <span class="count" id="candidateCount">5</span></button>
+    <button data-page="Resume screening"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>Resume screening</button>
+    <button data-page="Job descriptions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"/></svg>Job descriptions</button>
+    <button data-page="Analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h17"/><rect x="7" y="12" width="3" height="4" rx=".5"/><rect x="13" y="8" width="3" height="8" rx=".5"/><rect x="19" y="4" width="2" height="12" rx=".5"/></svg>Analytics</button>
+  </nav></div>
+  <div><div class="nav-label">PREFERENCES</div><nav class="nav"><button data-page="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.2.9-1.5 2.6-1.4-.6a7.7 7.7 0 0 1-1.5.9L16 20.5h-3l-.3-1.6a7.7 7.7 0 0 1-1.5-.9l-1.4.6-1.5-2.6 1.2-.9a7 7 0 0 1 0-1.8l-1.2-.9 1.5-2.6 1.4.6a7.7 7.7 0 0 1 1.5-.9L13 2.9h3l.3 1.6a7.7 7.7 0 0 1 1.5.9l1.4-.6 1.5 2.6-1.2.9a7 7 0 0 1-.1 1.7" transform="translate(-1 1) scale(.95)"/></svg>Settings</button></nav></div>
+  <div class="sidebar-bottom"><div class="help-card"><div class="help-icon">✦</div><strong>Need a hand?</strong><p>Get tips on creating better job descriptions and finding your ideal candidates.</p><button id="helpBtn">Explore guide ↗</button></div><div class="profile"><div class="avatar">HR</div><div><strong>Hiring Manager</strong><small>Recruiter workspace</small></div><span class="dots">•••</span></div></div>
+</aside>
+<main class="main">
+<header class="topbar"><div class="breadcrumb">Workspace&nbsp; / &nbsp;<strong id="breadcrumbCurrent">Overview</strong></div><div class="top-actions"><label class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg><input id="globalSearch" placeholder="Search candidates..." aria-label="Search candidates"></label><button class="icon-btn" id="notificationBtn" aria-label="Notifications"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="dot"></span></button></div></header>
+<div class="content">
+  <section class="welcome"><div><div class="eyebrow"><span></span> YOUR HIRING, REIMAGINED</div><h1 id="pageTitle">Good morning, recruiter <span style="display:inline-block;transform:translateY(1px)">✦</span></h1><p class="subtitle" id="pageSubtitle">Here's what's happening with your candidates today.</p></div><button class="primary-btn" id="topUpload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/></svg> Upload a resume</button></section>
+  <section class="stats" aria-label="Recruiting statistics">
+    <article class="stat"><div class="stat-top"><span class="stat-label">Total candidates</span><span class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7" r="4"/><path d="M20.5 20v-1.5a4 4 0 0 0-3-3.87M16.5 3.2a4 4 0 0 1 0 7.6"/></svg></span></div><div class="stat-number" id="totalStat">248</div><div class="stat-foot"><span class="positive">↗ 12.8%</span> <span>from last month</span></div></article>
+    <article class="stat"><div class="stat-top"><span class="stat-label">Screened resumes</span><span class="stat-icon mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13l2.5 2.5L16 10"/></svg></span></div><div class="stat-number" id="screenedStat">186</div><div class="stat-foot"><span class="positive">↗ 8.4%</span> <span>from last month</span></div></article>
+    <article class="stat"><div class="stat-top"><span class="stat-label">Awaiting review</span><span class="stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span></div><div class="stat-number" id="pendingStat">24</div><div class="stat-foot"><span class="neutral">Needs attention</span> <span>this week</span></div></article>
+    <article class="stat"><div class="stat-top"><span class="stat-label">Average match score</span><span class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 15 9l6 .9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.9 9 9z"/></svg></span></div><div class="stat-number" id="averageStat">82<span style="font-size:15px;color:#888ba1">%</span></div><div class="stat-foot"><span class="positive">↗ 4.2%</span> <span>from last month</span></div></article>
+  </section>
+  <section class="overview-grid">
+    <article class="panel" id="uploadPanel"><div class="panel-head"><div><div class="panel-title">Screen a new resume</div><div class="panel-caption">Match candidate skills to your job requirements</div></div><button class="text-btn" id="resetUpload">Reset form</button></div>
+      <div class="upload-panel"><div class="upload-intro"><div class="upload-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div><div><strong>Start with a candidate's resume</strong><p>PDF files work best for accurate extraction.</p></div></div>
+      <div class="dropzone" id="dropzone"><div class="cloud-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 8a4 4 0 0 1 0 8h-2"/><path d="m9 14 3-3 3 3M12 11v9"/></svg></div><strong>Drop your resume here</strong><p>or <span>browse files</span> from your computer</p><button class="secondary-btn" type="button" id="browseBtn">Choose PDF file</button><input class="file-input" id="resumeFile" type="file" accept="application/pdf,.pdf" /><div class="file-picked" id="filePicked"><span>✓</span><span id="fileName"></span></div></div>
+      <div class="job-field"><label for="jobDescription">Job description <span style="color:#e47b8c">*</span></label><textarea id="jobDescription" placeholder="Paste the role requirements, key skills, and experience you're looking for...">Python developer with experience in AWS, REST APIs, and DynamoDB.</textarea></div>
+      <div class="upload-footer"><small>PDF only · Max 10 MB · Your files stay private</small><button class="primary-btn" id="screenBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/><circle cx="12" cy="12" r="5"/></svg> Screen resume</button></div>
+      </div>
+    </article>
+    <article class="panel"><div class="pipeline"><div class="panel-head"><div><div class="panel-title">How screening works</div><div class="panel-caption">From upload to actionable insights</div></div><span style="font-size:17px;color:#7066dc">✦</span></div>
+      <div class="pipeline-step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div><div class="step-text"><strong>1. Resume parsing</strong><p>Extract skills, education, experience and projects.</p></div><span class="step-status">READY</span></div>
+      <div class="pipeline-step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></div><div class="step-text"><strong>2. AI skill matching</strong><p>Compare extracted skills with the job description.</p></div><span class="step-status">READY</span></div>
+      <div class="pipeline-step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 6-7"/></svg></div><div class="step-text"><strong>3. Candidate insights</strong><p>Review match score, strengths and missing skills.</p></div><span class="step-status pending">ON RUN</span></div>
+      <div class="pipeline-note">✦ &nbsp;This prototype previews the experience. Live screening needs the AWS API connection and your backend processing step.</div>
+    </div></article>
+  </section>
+  <section class="panel table-panel" id="candidatePanel"><div class="panel-head"><div><div class="panel-title">Recent candidates</div><div class="panel-caption">A quick look at your latest resume screenings</div></div><div class="table-tools"><select class="filter-select" id="statusFilter" aria-label="Filter by status"><option value="all">All statuses</option><option value="Completed">Completed</option><option value="In review">In review</option><option value="Processing">Processing</option></select><button class="text-btn" id="viewAllBtn">View all →</button></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Candidate</th><th>Applied role</th><th>Key skills</th><th>Match score</th><th>Status</th><th></th></tr></thead><tbody id="candidateRows"></tbody></table></div>
+  <div class="table-bottom"><span id="tableSummary">Showing 5 sample candidates</span><div class="pagination"><button aria-label="Previous page">‹</button><button class="active">1</button><button>2</button><button>3</button><button aria-label="Next page">›</button></div></div>
+  </section>
+</div>
+</main>
+</div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><div class="modal-head"><strong id="modalTitle">Candidate details</strong><button class="modal-close" id="modalClose" aria-label="Close">×</button></div><div class="modal-body" id="modalBody"></div><div class="modal-foot"><button class="secondary-btn" id="modalDone">Close details</button><button class="primary-btn" id="modalAction">Back to dashboard</button></div></div></div>
+<script>
+const candidates = [
+ {name:'Jordan Lee',email:'jordan.lee@example.com',initials:'JL',color:'#e8e4ff',ink:'#6656c8',role:'Python Developer',skills:['Python','AWS','REST APIs'],score:100,status:'Completed',summary:'The sample resume explicitly lists the required Python, AWS, REST API and DynamoDB skills. This is demonstration data, not a real applicant assessment.',education:'B.Tech, Computer Science',experience:'Projects & coursework',id:'DEMO-001'},
+ {name:'Ava Patel',email:'ava.patel@example.com',initials:'AP',color:'#dff6ed',ink:'#268767',role:'Cloud Engineer',skills:['AWS','Docker','Linux'],score:92,status:'Completed',summary:'Strong alignment with cloud infrastructure and deployment skills. Review project depth and hands-on experience during an interview.',education:'B.E., Information Technology',experience:'2 years',id:'DEMO-002'},
+ {name:'Noah Williams',email:'noah.w@example.com',initials:'NW',color:'#ffeadb',ink:'#b86c3e',role:'Backend Developer',skills:['Node.js','SQL','APIs'],score:84,status:'In review',summary:'Good backend fundamentals with relevant API and database experience. Verify the depth of production deployment experience.',education:'B.Sc., Computer Science',experience:'1.5 years',id:'DEMO-003'},
+ {name:'Mia Chen',email:'mia.chen@example.com',initials:'MC',color:'#e0edff',ink:'#477bc4',role:'Data Analyst',skills:['Python','SQL','Power BI'],score:78,status:'Completed',summary:'Relevant analytics and data querying skills. Consider checking portfolio examples and business communication skills.',education:'B.Sc., Data Science',experience:'1 year',id:'DEMO-004'},
+ {name:'Ethan Brooks',email:'ethan.b@example.com',initials:'EB',color:'#fbe4ef',ink:'#b85e8b',role:'Frontend Developer',skills:['React','CSS','JavaScript'],score:0,status:'Processing',summary:'Screening has not been completed in this sample interface.',education:'Not available',experience:'Not available',id:'DEMO-005'}
+];
+const icons={search:'⌕'};
+const rowsEl=document.getElementById('candidateRows');
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderRows(){
+ const query=document.getElementById('globalSearch').value.trim().toLowerCase();
+ const filter=document.getElementById('statusFilter').value;
+ const shown=candidates.filter(c=>(!query||[c.name,c.email,c.role,...c.skills].join(' ').toLowerCase().includes(query))&&(filter==='all'||c.status===filter));
+ rowsEl.innerHTML=shown.map((c)=>`<tr><td><div class="candidate"><div class="candidate-avatar" style="background:${c.color};color:${c.ink}">${escapeHtml(c.initials)}</div><div><div class="candidate-name">${escapeHtml(c.name)}</div><div class="candidate-email">${escapeHtml(c.email)}</div></div></div></td><td><span class="role">${escapeHtml(c.role)}</span></td><td><div class="skill-list">${c.skills.map(s=>`<span class="skill">${escapeHtml(s)}</span>`).join('')}</div></td><td><div class="match"><strong>${c.score?c.score+'%':'—'}</strong><div class="meter"><span style="width:${c.score}%"></span></div></div></td><td><span class="status ${c.status==='Completed'?'completed':c.status==='In review'?'review':'processing'}">${escapeHtml(c.status)}</span></td><td><button class="row-action" aria-label="View ${escapeHtml(c.name)} details" data-detail="${escapeHtml(c.id)}">···</button></td></tr>`).join('');
+ if(!shown.length)rowsEl.innerHTML='<tr><td colspan="6" style="padding:28px;text-align:center;color:#9698ad">No candidates match your search.</td></tr>';
+ document.getElementById('tableSummary').textContent=`Showing ${shown.length} sample candidate${shown.length===1?'':'s'}`;
+ document.getElementById('candidateCount').textContent=candidates.length;
+}
+function toast(message){const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove('show'),3500);}
+function openDetails(c){document.getElementById('modalTitle').textContent=c.name+' · Candidate profile';document.getElementById('modalBody').innerHTML=`<p>This is a sample record used to demonstrate the dashboard. Live candidate details will appear here after the frontend is connected to your backend.</p><div class="detail-score"><div class="score-circle">${c.score?c.score+'%':'—'}</div><div><strong>${escapeHtml(c.role)}</strong><span>${escapeHtml(c.status)} · ${escapeHtml(c.id)}</span></div></div><div class="detail-list"><div class="detail-item"><small>Education</small><strong>${escapeHtml(c.education)}</strong></div><div class="detail-item"><small>Experience</small><strong>${escapeHtml(c.experience)}</strong></div><div class="detail-item"><small>Skills found</small><strong>${escapeHtml(c.skills.join(', '))}</strong></div><div class="detail-item"><small>Screening status</small><strong>${escapeHtml(c.status)}</strong></div></div><p><strong style="color:inherit">Suitability notes</strong><br>${escapeHtml(c.summary)}</p>`;document.getElementById('modalBackdrop').classList.add('open');}
+rowsEl.addEventListener('click',e=>{const btn=e.target.closest('[data-detail]');if(btn){const c=candidates.find(x=>x.id===btn.dataset.detail);if(c)openDetails(c);}});
+document.getElementById('globalSearch').addEventListener('input',renderRows);
+document.getElementById('statusFilter').addEventListener('change',renderRows);
+document.getElementById('topUpload').addEventListener('click',()=>{document.getElementById('uploadPanel').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>document.getElementById('resumeFile').click(),250);});
+document.getElementById('browseBtn').addEventListener('click',()=>document.getElementById('resumeFile').click());
+const fileInput=document.getElementById('resumeFile');
+function chooseFile(file){if(!file)return;if(!(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf'))){toast('Please choose a PDF resume.');return;}if(file.size>10*1024*1024){toast('That file is larger than 10 MB. Please choose a smaller PDF.');return;}fileInput.files && (document.getElementById('fileName').textContent=file.name);document.getElementById('filePicked').classList.add('visible');toast('Resume selected. Add a job description, then click Screen resume.');}
+fileInput.addEventListener('change',()=>chooseFile(fileInput.files[0]));
+const dropzone=document.getElementById('dropzone');
+['dragenter','dragover'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add('dragover');}));
+['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.remove('dragover');}));
+dropzone.addEventListener('drop',e=>chooseFile(e.dataTransfer.files[0]));
+document.getElementById('resetUpload').addEventListener('click',()=>{fileInput.value='';document.getElementById('filePicked').classList.remove('visible');document.getElementById('fileName').textContent='';document.getElementById('jobDescription').value='';toast('Upload form reset.');});
+const API_BASE = 'https://btphokrcdk.execute-api.eu-west-1.amazonaws.com/dev';
+
+document.getElementById('screenBtn').addEventListener('click', async () => {
+    const file = fileInput.files[0];
+    const jobDescription = document.getElementById('jobDescription').value.trim();
+    const button = document.getElementById('screenBtn');
+
+    if (!file) {
+        toast('Choose a PDF resume first.');
+        return;
+    }
+
+    if (!jobDescription) {
+        toast('Please add a job description.');
+        return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+        toast('The PDF must be smaller than 10 MB.');
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Uploading...';
+
+    try {
+        // 1. Register the candidate and request an S3 upload URL.
+        const response = await fetch(`${API_BASE}/resumes/upload-url`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ jobDescription })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || data.error || 'Could not register candidate.');
+        }
+
+        if (!data.candidateId || !data.uploadUrl) {
+            throw new Error('The API response is missing the candidate ID or upload URL.');
+        }
+
+        // 2. Upload the PDF directly to S3 using the temporary URL.
+        const uploadResponse = await fetch(data.uploadUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': data.requiredContentType || 'application/pdf'
+            },
+            body: file
+        });
+
+        if (!uploadResponse.ok) {
+            throw new Error(`S3 upload failed with HTTP ${uploadResponse.status}.`);
+        }
+
+        // 3. Show the real candidate ID and upload status.
+        toast(`Resume uploaded! Candidate ID: ${data.candidateId}`);
+
+        alert(
+            'Resume uploaded successfully!\n\n' +
+            'Candidate ID: ' + data.candidateId +
+            '\nStatus: Uploaded; screening has not run yet.'
+        );
+
+    } catch (error) {
+        console.error('Resume upload error:', error);
+        toast('Upload failed: ' + error.message);
+    } finally {
+        button.disabled = false;
+        button.innerHTML = 'Screen resume';
+    }
+});
+document.getElementById('notificationBtn').addEventListener('click',()=>toast('You’re all caught up — sample notifications only.'));
+document.getElementById('helpBtn').addEventListener('click',()=>{document.getElementById('modalTitle').textContent='Quick guide';document.getElementById('modalBody').innerHTML='<p><strong>1. Add a resume.</strong> Choose a PDF file under 10 MB.</p><p><strong>2. Add a job description.</strong> Include the skills and experience that matter for the role.</p><p><strong>3. Screen and review.</strong> Once connected to AWS, the app will send the PDF to S3 and display analysis results returned by your backend.</p><p>For now, this is an interactive frontend preview using sample data. It does not upload files or call AWS.</p>';document.getElementById('modalBackdrop').classList.add('open');});
+document.getElementById('viewAllBtn').addEventListener('click',()=>{document.getElementById('globalSearch').value='';document.getElementById('statusFilter').value='all';renderRows();toast('Showing all sample candidates.');});
+document.querySelectorAll('.nav button[data-page]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const page=btn.dataset.page;document.getElementById('breadcrumbCurrent').textContent=page;if(page==='Overview'){document.getElementById('pageTitle').innerHTML='Good morning, recruiter <span style="display:inline-block;transform:translateY(1px)">✦</span>';document.getElementById('pageSubtitle').textContent="Here's what's happening with your candidates today.";}else{document.getElementById('pageTitle').textContent=page;document.getElementById('pageSubtitle').textContent=page==='Candidates'?'Browse and review candidate profiles.':page==='Resume screening'?'Upload resumes and compare them with role requirements.':page==='Analytics'?'Explore candidate screening insights.':page==='Job descriptions'?'Keep your role requirements organized.':page==='Settings'?'Manage your workspace preferences.':'Manage your workspace.';}if(page==='Candidates'){document.getElementById('candidatePanel').scrollIntoView({behavior:'smooth',block:'start'});}else if(page==='Resume screening'){document.getElementById('uploadPanel').scrollIntoView({behavior:'smooth',block:'center'});}else if(page!=='Overview'){toast(`${page} is a navigation preview. This section can be built out next.`);}}));
+function closeModal(){document.getElementById('modalBackdrop').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('modalDone').addEventListener('click',closeModal);document.getElementById('modalAction').addEventListener('click',closeModal);document.getElementById('modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop')closeModal();});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+renderRows();
+</script>
+</body>
+</html>

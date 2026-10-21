@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TalentLens — AI Resume Screening</title>
+<style>
+:root{--purple:#635bdb;--ink:#202238;--muted:#85889f;--line:#e9eaf2;--bg:#f6f7fb}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}button,input,textarea{font:inherit}button{cursor:pointer}
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}.sidebar{background:white;border-right:1px solid var(--line);padding:25px 17px;display:flex;flex-direction:column;gap:28px}.brand{font-size:21px;font-weight:850}.logo{display:inline-grid;place-items:center;background:var(--purple);color:white;border-radius:10px;width:34px;height:34px;margin-right:9px}.nav-label{font-size:10px;color:#999bb0;font-weight:800;letter-spacing:1.5px;margin:0 10px 8px}.nav button{display:block;width:100%;text-align:left;padding:12px;border:0;background:transparent;border-radius:9px;color:#747790;margin:3px 0;font-size:13px}.nav button.active,.nav button:hover{background:#e9e7ff;color:#29245d}.sidebar-foot{margin-top:auto;color:var(--muted);font-size:11px;line-height:1.6}.main{min-width:0}.topbar{height:70px;background:white;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 28px;gap:12px}.crumb{font-size:12px;color:var(--muted)}.search{width:min(260px,40vw);padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:#fafbfe}.content{padding:28px;max-width:1400px;margin:auto}.welcome{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}.eyebrow{font-size:10px;color:var(--purple);font-weight:800;letter-spacing:1.4px;margin-bottom:8px}h1{font-size:28px;letter-spacing:-.8px;margin:0}p.subtitle{font-size:13px;color:var(--muted);margin:8px 0 0}.btn{border:0;border-radius:9px;background:var(--purple);color:white;padding:11px 15px;font-size:12px;font-weight:750}.btn:disabled{opacity:.6;cursor:wait}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}.stat,.panel{background:white;border:1px solid var(--line);border-radius:13px}.stat{padding:17px}.stat-label{font-size:11px;color:var(--muted)}.stat-num{font-size:26px;font-weight:850;margin-top:12px}.stat-note{font-size:10px;color:var(--muted);margin-top:5px}.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,1fr);gap:17px;margin-bottom:20px}.panel-head{padding:18px 20px;border-bottom:1px solid #eff0f6;display:flex;align-items:center;justify-content:space-between;gap:10px}.panel-title{font-size:14px;font-weight:800}.panel-sub{font-size:11px;color:var(--muted);margin-top:5px}.upload-body{padding:20px}.drop{border:1.5px dashed #d8d5f6;border-radius:12px;background:#faf9ff;text-align:center;padding:23px 12px}.drop strong{font-size:13px}.drop p{font-size:11px;color:var(--muted)}.secondary{border:1px solid #e3e2f5;background:white;color:#5c56a6;border-radius:8px;padding:9px 12px;font-size:11px;font-weight:700}.file-name{font-size:11px;color:#188a68;margin-top:10px;overflow-wrap:anywhere}.field{margin-top:16px}.field label{display:block;font-size:11px;font-weight:750;margin-bottom:7px}.field textarea{width:100%;min-height:88px;border:1px solid var(--line);border-radius:9px;padding:11px;resize:vertical;background:#fbfcfe;color:var(--ink);font-size:12px}.upload-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:15px}.upload-foot small{font-size:10px;color:var(--muted)}.pipeline{padding:20px}.step{padding:15px 0;border-bottom:1px solid #f0f1f6}.step:last-of-type{border-bottom:0}.step strong{font-size:12px}.step p{font-size:11px;color:var(--muted);line-height:1.5;margin:6px 0 0}.note{background:#f8f7ff;border-radius:9px;padding:12px;color:#77739e;font-size:10px;line-height:1.6;margin-top:8px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:660px}th{text-align:left;padding:13px 18px;background:#fafbfe;font-size:9px;color:#999bb0;letter-spacing:.8px;text-transform:uppercase}td{padding:14px 18px;border-top:1px solid #f0f1f6;font-size:11px}.candidate-name{font-weight:800}.candidate-id{font-size:10px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}.role{color:#6e7189}.status{display:inline-block;border-radius:6px;padding:6px 8px;font-size:9px;font-weight:800;background:#fff2d7;color:#b78122}.status.completed{background:#e2f8ef;color:#188a68}.status.processing{background:#e8efff;color:#4f73c7}.table-bottom{padding:14px 18px;border-top:1px solid #eff0f6;color:var(--muted);font-size:10px}.toast{position:fixed;bottom:20px;right:20px;max-width:400px;background:#25263b;color:white;border-radius:10px;padding:13px 16px;font-size:12px;display:none;z-index:5}.toast.show{display:block}.file-input{display:none}
+@media(max-width:1000px){.layout{grid-template-columns:185px minmax(0,1fr)}.content{padding:20px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}}
+@media(max-width:680px){.layout{grid-template-columns:1fr}.sidebar{display:none}.topbar{padding:0 14px}.content{padding:16px 12px}.welcome{align-items:flex-start;flex-direction:column}.welcome .btn{width:100%}.stats{gap:8px}.stat{padding:13px}h1{font-size:24px}.upload-foot{align-items:stretch;flex-direction:column}.upload-foot .btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="brand"><span class="logo">✓</span>TalentLens</div>
+ <div><div class="nav-label">WORKSPACE</div><nav class="nav"><button class="active" data-scroll="overview">▦ &nbsp; Overview</button><button data-scroll="candidatePanel">♙ &nbsp; Candidates <span id="candidateCount"></span></button><button data-scroll="uploadPanel">▤ &nbsp; Resume screening</button></nav></div>
+ <div class="sidebar-foot">AI-Powered Resume Screening &amp; Parsing<br>Member H · Candidate management</div>
+</aside>
+<main class="main" id="overview">
+<header class="topbar"><div class="crumb">Workspace / <strong>Overview</strong></div><input class="search" id="searchInput" placeholder="Search candidates..." aria-label="Search candidates"></header>
+<div class="content">
+<section class="welcome"><div><div class="eyebrow">● YOUR HIRING, REIMAGINED</div><h1>Resume screening dashboard</h1><p class="subtitle">Upload a resume and track its screening status.</p></div><button class="btn" id="topUpload">＋ Upload a resume</button></section>
+<section class="stats">
+<article class="stat"><div class="stat-label">Candidates in this browser</div><div class="stat-num" id="totalStat">0</div><div class="stat-note">Uploaded candidates saved locally</div></article>
+<article class="stat"><div class="stat-label">Completed screening</div><div class="stat-num" id="completedStat">0</div><div class="stat-note">Only confirmed results count</div></article>
+<article class="stat"><div class="stat-label">Pending / processing</div><div class="stat-num" id="pendingStat">0</div><div class="stat-note">Awaiting backend processing</div></article>
+<article class="stat"><div class="stat-label">Average match score</div><div class="stat-num" id="averageStat">—</div><div class="stat-note">Only real scores are shown</div></article>
+</section>
+<section class="grid">
+<article class="panel" id="uploadPanel"><div class="panel-head"><div><div class="panel-title">Screen a new resume</div><div class="panel-sub">Upload a PDF to private Amazon S3 storage</div></div></div>
+<div class="upload-body">
+<div class="drop" id="dropzone"><strong>Drop your resume here</strong><p>or choose a PDF file under 10 MB</p><button class="secondary" type="button" id="browseBtn">Choose PDF file</button><input class="file-input" id="resumeFile" type="file" accept="application/pdf,.pdf"><div class="file-name" id="fileName"></div></div>
+<div class="field"><label for="jobDescription">Job description *</label><textarea id="jobDescription">Python developer with experience in AWS, REST APIs, and DynamoDB.</textarea></div>
+<div class="upload-foot"><small>PDF only · Max 10 MB · Secure upload link expires in 5 minutes</small><button class="btn" id="screenBtn">Upload resume</button></div>
+</div></article>
+<article class="panel"><div class="panel-head"><div><div class="panel-title">Screening pipeline</div><div class="panel-sub">Upload and analysis stages</div></div></div><div class="pipeline">
+<div class="step"><strong>1. Resume upload</strong><p>API Gateway creates a candidate record and secure S3 upload URL.</p></div>
+<div class="step"><strong>2. Resume parsing</strong><p>The backend processing script extracts resume information.</p></div>
+<div class="step"><strong>3. AI analysis</strong><p>Real match results appear after processing completes.</p></div>
+<div class="note">Uploading a PDF does not automatically run the screening script. Run the backend processor separately unless an automatic trigger has been configured.</div>
+</div></article>
+</section>
+<section class="panel" id="candidatePanel"><div class="panel-head"><div><div class="panel-title">Recent uploaded candidates</div><div class="panel-sub">Candidates uploaded from this browser</div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Candidate / ID</th><th>Applied role</th><th>Match score</th><th>Status</th></tr></thead><tbody id="candidateRows"></tbody></table></div><div class="table-bottom" id="tableSummary">No uploaded candidates in this browser yet.</div></section>
+</div></main></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const API_BASE='https://btphokrcdk.execute-api.eu-west-1.amazonaws.com/dev';
+const fileInput=document.getElementById('resumeFile');
+let candidates=[];
+let backendCandidateIds=new Set();
+try{const saved=JSON.parse(localStorage.getItem('talentLensUploadedCandidates')||'[]');if(Array.isArray(saved))candidates=saved;}catch(e){candidates=[];}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function toast(message){const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove('show'),4500);}
+function persist(){try{localStorage.setItem('talentLensUploadedCandidates',JSON.stringify(candidates));}catch(e){console.warn('Could not save candidates in this browser',e);}}
+function renderCandidates(){
+ const q=document.getElementById('searchInput').value.trim().toLowerCase();
+ const shown=candidates.filter(c=>[c.name,c.id,c.role,c.status].join(' ').toLowerCase().includes(q));
+ document.getElementById('candidateRows').innerHTML=shown.length?shown.map(c=>`<tr><td><div class="candidate-name">${escapeHtml(c.name||'Uploaded candidate')}</div><div class="candidate-id">${escapeHtml(c.id)}</div></td><td><span class="role">${escapeHtml(c.role||'Role not specified')}</span></td><td class="score">${Number.isFinite(c.score)?c.score+'%':'—'}</td><td><span class="status ${c.status==='COMPLETED'?'completed':c.status==='PROCESSING'?'processing':''}">${escapeHtml(c.status||'PENDING_UPLOAD')}</span></td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:28px;color:#85889f">No uploaded candidates found. Upload a PDF to add one.</td></tr>';
+ const completed=candidates.filter(c=>c.status==='COMPLETED'&&Number.isFinite(c.score));
+ const scores=completed.map(c=>c.score);
+ document.getElementById('totalStat').textContent=candidates.length;
+ document.getElementById('completedStat').textContent=candidates.filter(c=>c.status==='COMPLETED').length;
+ document.getElementById('pendingStat').textContent=candidates.filter(c=>c.status!=='COMPLETED').length;
+ document.getElementById('averageStat').textContent=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length)+'%':'—';
+ document.getElementById('candidateCount').textContent=candidates.length;
+ document.getElementById('tableSummary').textContent=`Showing ${shown.length} of ${candidates.length} candidate${candidates.length===1?'':'s'} from AWS and this browser.`;
+}
+function asObject(value){if(value&&typeof value==='object')return value;if(typeof value==='string'){try{return JSON.parse(value)}catch(e){return {summary:value}}}return {}; }
+function fromApi(item){
+ const a=asObject(item.aiAnalysis||item.analysis||item.screeningResult);
+ const rawScore=a.match_score??a.matchScore??a.match_percentage??a.matchPercentage??a.score??a.suitability_score??item.matchScore??item.score;
+ let score=Number(rawScore);if(!Number.isFinite(score))score=null;else if(score>0&&score<=1)score=Math.round(score*100);
+ const rawStatus=String(item.screeningStatus||item.status||'PENDING_UPLOAD').toUpperCase();
+ const status=rawStatus.includes('COMPLETE')||rawStatus==='COMPLETED'?'COMPLETED':rawStatus.includes('PROCESS')?'PROCESSING':rawStatus.includes('REVIEW')?'IN REVIEW':'PENDING_UPLOAD';
+ const name=a.candidate_name||a.candidateName||a.name||item.candidateName||item.name||'Uploaded candidate';
+ const role=item.jobTitle||item.role||item.jobDescription||'Role not specified';
+ return {id:item.candidateId||item.id||'',name,role:String(role).split(/[\n.]/)[0].slice(0,90),status,score,summary:a.summary||a.analysis||a.recommendation||'',skills:Array.isArray(a.skills)?a.skills:[],uploadedAt:item.createdAt||item.uploadedAt||''};
+}
+async function loadCandidates(){
+ try{
+  const response=await fetch(`${API_BASE}/candidates`);
+  if(!response.ok)throw new Error(`HTTP ${response.status}`);
+  const data=await response.json();
+  const items=Array.isArray(data)?data:(Array.isArray(data.candidates)?data.candidates:[]);
+  const fromAws=items.map(fromApi).filter(c=>c.id);
+  backendCandidateIds=new Set(fromAws.map(c=>c.id));
+  const localOnly=candidates.filter(c=>!backendCandidateIds.has(c.id));
+  candidates=[...fromAws,...localOnly];
+  renderCandidates();
+ }catch(error){console.error('Could not load candidates from AWS:',error);toast('Could not refresh candidates from AWS. Showing saved browser records.');}
+}
+function chooseFile(file){if(!file)return;if(!(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf'))){toast('Please choose a PDF file.');fileInput.value='';return;}if(file.size>10*1024*1024){toast('The PDF must be under 10 MB.');fileInput.value='';return;}document.getElementById('fileName').textContent='Selected: '+file.name;}
+document.getElementById('browseBtn').addEventListener('click',()=>fileInput.click());
+fileInput.addEventListener('change',()=>chooseFile(fileInput.files[0]));
+const dropzone=document.getElementById('dropzone');
+['dragenter','dragover'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.style.background='#f0eeff';}));
+['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.style.background='#faf9ff';}));
+dropzone.addEventListener('drop',e=>{if(e.dataTransfer.files.length){try{fileInput.files=e.dataTransfer.files;}catch(err){}chooseFile(e.dataTransfer.files[0]);}});
+document.getElementById('topUpload').addEventListener('click',()=>document.getElementById('uploadPanel').scrollIntoView({behavior:'smooth'}));
+document.getElementById('searchInput').addEventListener('input',renderCandidates);
+document.querySelectorAll('[data-scroll]').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.scroll).scrollIntoView({behavior:'smooth'})));
+document.getElementById('screenBtn').addEventListener('click',async()=>{
+ const file=fileInput.files[0],jobDescription=document.getElementById('jobDescription').value.trim(),button=document.getElementById('screenBtn');
+ if(!file){toast('Choose a PDF resume first.');return;}
+ if(!(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf'))){toast('Please choose a PDF file.');return;}
+ if(file.size>10*1024*1024){toast('The PDF must be under 10 MB.');return;}
+ if(!jobDescription){toast('Enter a job description first.');return;}
+ button.disabled=true;button.textContent='Uploading...';
+ try{
+  toast('Step 1/2: Requesting secure upload URL...');
+  const response=await fetch(`${API_BASE}/resumes/upload-url`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobDescription})});
+  let data={};try{data=await response.json();}catch(e){}
+  if(!response.ok)throw new Error(data.error||data.message||`API request failed (HTTP ${response.status})`);
+  if(!data.candidateId||!data.uploadUrl)throw new Error('The API did not return a candidate ID and upload URL.');
+  toast('Step 2/2: Uploading PDF to S3...');
+  const uploadResponse=await fetch(data.uploadUrl,{method:'PUT',headers:{'Content-Type':data.requiredContentType||'application/pdf'},body:file});
+  if(!uploadResponse.ok)throw new Error(`S3 upload failed (HTTP ${uploadResponse.status}).`);
+ let candidate={id:data.candidateId,name:file.name.replace(/\.pdf$/i,''),role:jobDescription.split(/[.\n]/)[0].slice(0,90)||'Role not specified',status:'PENDING_UPLOAD',score:null,uploadedAt:new Date().toISOString()};
+  candidates=[candidate,...candidates.filter(c=>c.id!==candidate.id)];persist();renderCandidates();
+  document.getElementById('fileName').textContent='Uploaded successfully: '+file.name;
+  toast('PDF uploaded successfully. Candidate added to Recent Candidates.');
+  alert(`Resume uploaded successfully!\n\nCandidate ID: ${data.candidateId}\nStatus: PENDING_UPLOAD\n\nThe candidate is listed in the dashboard. Run your backend processing script to generate real screening results.`);
+  await loadCandidates();
+  document.getElementById('candidatePanel').scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(error){
+  console.error('Upload error:',error);
+  const msg=error instanceof TypeError?'Network/CORS error. Check browser DevTools → Console and Network.':error.message;
+  toast(msg);alert(`Upload did not complete.\n\n${msg}`);
+ }finally{button.disabled=false;button.textContent='Upload resume';}
+});
+renderCandidates();
+loadCandidates();
+</script>
+</body>
+</html>
